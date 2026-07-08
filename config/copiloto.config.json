@@ -1,0 +1,23 @@
+{
+  "name": "Eidon OS",
+  "version": "0.1.0",
+  "activation_phrase": "Está na hora do show.",
+  "mission": "Construir e preservar.",
+  "rules": {
+    "show_only_palace_when_opening": true,
+    "require_authorization_before_cataloging": true,
+    "use_clean_code_principles": true,
+    "record_decisions": true
+  },
+  "guardians": [
+    "Eidon",
+    "Asterion",
+    "Aion",
+    "Argus",
+    "Nareth",
+    "Soren",
+    "Solon",
+    "Magnus",
+    "Elarion"
+  ]
+}
