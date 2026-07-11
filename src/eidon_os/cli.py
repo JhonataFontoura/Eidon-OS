@@ -2,45 +2,123 @@ from __future__ import annotations
 
 import argparse
 
+from eidon_os.application.knowledge_use_cases import KnowledgeCatalog
 from eidon_os.application.use_cases import CreateMemory, ListMemories
+from eidon_os.infrastructure.sqlite_knowledge_repository import SQLiteKnowledgeRepository
 from eidon_os.infrastructure.sqlite_repository import SQLiteMemoryRepository
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Eidon OS local memory manager")
+    parser = argparse.ArgumentParser(description="Eidon OS local knowledge manager")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    create_parser = subparsers.add_parser("add", help="Catalog a new memory")
-    create_parser.add_argument("--title", required=True)
-    create_parser.add_argument("--content", required=True)
-    create_parser.add_argument("--category", required=True)
-    create_parser.add_argument("--source")
-
+    memory_add = subparsers.add_parser("add", help="Catalog a new memory")
+    memory_add.add_argument("--title", required=True)
+    memory_add.add_argument("--content", required=True)
+    memory_add.add_argument("--category", required=True)
+    memory_add.add_argument("--source")
     subparsers.add_parser("list", help="List cataloged memories")
+
+    project_add = subparsers.add_parser("project-add", help="Create a project")
+    project_add.add_argument("--name", required=True)
+    project_add.add_argument("--description", required=True)
+    project_add.add_argument("--status", default="active")
+    project_add.add_argument("--github-url")
+    subparsers.add_parser("project-list", help="List projects")
+
+    file_add = subparsers.add_parser("file-add", help="Catalog file metadata")
+    file_add.add_argument("--name", required=True)
+    file_add.add_argument("--path", required=True)
+    file_add.add_argument("--media-type")
+    file_add.add_argument("--category")
+    file_add.add_argument("--summary")
+    file_add.add_argument("--source")
+    subparsers.add_parser("file-list", help="List cataloged files")
+
+    person_add = subparsers.add_parser("person-add", help="Catalog a person")
+    person_add.add_argument("--name", required=True)
+    person_add.add_argument("--role")
+    person_add.add_argument("--organization")
+    person_add.add_argument("--contact")
+    person_add.add_argument("--notes")
+    subparsers.add_parser("person-list", help="List people")
+
+    company_add = subparsers.add_parser("company-add", help="Catalog a company")
+    company_add.add_argument("--name", required=True)
+    company_add.add_argument("--website")
+    company_add.add_argument("--technologies")
+    company_add.add_argument("--notes")
+    subparsers.add_parser("company-list", help="List companies")
+
+    knowledge_add = subparsers.add_parser("knowledge-add", help="Catalog knowledge")
+    knowledge_add.add_argument("--title", required=True)
+    knowledge_add.add_argument("--content", required=True)
+    knowledge_add.add_argument("--kind", required=True)
+    knowledge_add.add_argument("--source")
+    knowledge_add.add_argument("--tags")
+    subparsers.add_parser("knowledge-list", help="List knowledge items")
+
+    relation_add = subparsers.add_parser("relation-add", help="Relate two cataloged records")
+    relation_add.add_argument("--source-type", required=True)
+    relation_add.add_argument("--source-id", required=True)
+    relation_add.add_argument("--target-type", required=True)
+    relation_add.add_argument("--target-id", required=True)
+    relation_add.add_argument("--relation-type", required=True)
+    relation_add.add_argument("--notes")
+    subparsers.add_parser("relation-list", help="List relationships")
     return parser
+
+
+def print_records(records: list[object], label: str) -> None:
+    if not records:
+        print(f"No {label} cataloged.")
+        return
+    for record in records:
+        name = getattr(record, "name", None) or getattr(record, "title", None) or getattr(record, "relation_type", "record")
+        print(f"{name} ({getattr(record, 'id')})")
 
 
 def main() -> None:
     args = build_parser().parse_args()
-    repository = SQLiteMemoryRepository()
 
-    if args.command == "add":
-        memory = CreateMemory(repository).execute(
-            title=args.title,
-            content=args.content,
-            category=args.category,
-            source=args.source,
-        )
-        print(f"Memory cataloged: {memory.id} — {memory.title}")
+    if args.command in {"add", "list"}:
+        repository = SQLiteMemoryRepository()
+        if args.command == "add":
+            memory = CreateMemory(repository).execute(title=args.title, content=args.content, category=args.category, source=args.source)
+            print(f"Memory cataloged: {memory.id} — {memory.title}")
+        else:
+            print_records(ListMemories(repository).execute(), "memories")
         return
 
-    memories = ListMemories(repository).execute()
-    if not memories:
-        print("No memories cataloged.")
-        return
+    repository = SQLiteKnowledgeRepository()
+    catalog = KnowledgeCatalog(repository)
 
-    for memory in memories:
-        print(f"[{memory.category}] {memory.title} ({memory.id})")
+    if args.command == "project-add":
+        item = catalog.create_project(name=args.name, description=args.description, status=args.status, github_url=args.github_url)
+    elif args.command == "project-list":
+        print_records(repository.list_projects(), "projects"); return
+    elif args.command == "file-add":
+        item = catalog.create_file(name=args.name, path=args.path, media_type=args.media_type, category=args.category, summary=args.summary, source=args.source)
+    elif args.command == "file-list":
+        print_records(repository.list_files(), "files"); return
+    elif args.command == "person-add":
+        item = catalog.create_person(name=args.name, role=args.role, organization=args.organization, contact=args.contact, notes=args.notes)
+    elif args.command == "person-list":
+        print_records(repository.list_people(), "people"); return
+    elif args.command == "company-add":
+        item = catalog.create_company(name=args.name, website=args.website, technologies=args.technologies, notes=args.notes)
+    elif args.command == "company-list":
+        print_records(repository.list_companies(), "companies"); return
+    elif args.command == "knowledge-add":
+        item = catalog.create_knowledge(title=args.title, content=args.content, kind=args.kind, source=args.source, tags=args.tags)
+    elif args.command == "knowledge-list":
+        print_records(repository.list_knowledge(), "knowledge items"); return
+    elif args.command == "relation-add":
+        item = catalog.create_relationship(source_type=args.source_type, source_id=args.source_id, target_type=args.target_type, target_id=args.target_id, relation_type=args.relation_type, notes=args.notes)
+    else:
+        print_records(repository.list_relationships(), "relationships"); return
+
+    print(f"Cataloged: {item.id}")
 
 
 if __name__ == "__main__":

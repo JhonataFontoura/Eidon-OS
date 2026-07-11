@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "eidon-os"
-version = "0.2.0"
-description = "Sistema operacional pessoal baseado em IA para construir e preservar conhecimento."
+version = "0.3.0"
+description = "Plataforma pessoal de gestão do conhecimento para construir e preservar contexto."
 readme = "README.md"
 requires-python = ">=3.11"
 authors = [{ name = "Jhony Nunes" }]
