@@ -1,158 +1,176 @@
 # 🏛️ Eidon OS
 
-**Eidon OS** é um sistema operacional pessoal baseado em inteligência artificial que combina características de **copiloto** e **agente** para organizar conhecimento, preservar contexto e apoiar decisões.
-
-O projeto ocupa uma posição intermediária entre os dois modelos: mantém o usuário no controle, como um copiloto, mas evolui para executar fluxos especializados e coordenar diferentes papéis, como uma plataforma de agentes.
+**Eidon OS** é uma Plataforma de Gestão do Conhecimento Pessoal baseada em inteligência artificial. O projeto combina características de **copiloto**, **agente** e **sistema operacional pessoal** para preservar contexto, organizar conhecimento e apoiar decisões.
 
 > **Missão:** construir e preservar.
 
-## ✨ Visão
+## Por que existe
 
-Transformar a interação com IA em uma experiência contínua, estruturada e orientada ao crescimento pessoal e profissional.
+Projetos evoluem, pessoas esquecem, conversas desaparecem e arquivos se espalham. O Eidon OS nasce para conectar memórias, arquivos, projetos, pessoas, empresas, conhecimento e decisões em um único ecossistema pessoal.
 
-O Eidon OS organiza projetos, estudos, carreira, arquivos e decisões por meio de três elementos centrais:
+Leia o [Manifesto](docs/manifesto.md).
 
-- **Palácio da Memória:** estrutura lógica onde o conhecimento é organizado.
-- **Bibliotecário Eidon:** responsável por inspecionar, catalogar e preservar informações.
-- **Conselho do Palácio:** conjunto de especialistas virtuais para tecnologia, estudos, carreira, planejamento, qualidade e documentação.
+## Identidade
 
-## 🤖 Copiloto, agente ou os dois?
+O Eidon OS atua como:
 
-O Eidon OS é uma **plataforma de orquestração de IA pessoal**:
+- **copiloto**, quando trabalha lado a lado com o usuário;
+- **agente**, quando executa fluxos definidos por regras e permissões;
+- **plataforma de orquestração**, quando coordena especialistas do Conselho do Palácio;
+- **PKMS**, quando transforma informações isoladas em conhecimento relacionado.
 
-- atua como **copiloto** quando trabalha ao lado do usuário;
-- adota comportamentos de **agente** ao executar fluxos definidos por regras;
-- prepara a base para uma futura arquitetura **multiagente**.
+## Arquitetura em quatro núcleos
 
 ```text
-Usuário
-   ↓
 Eidon OS
-   ↓
-Conselho do Palácio
-   ├── Eidon — organização e memória
-   ├── Asterion — arquitetura
-   ├── Aion — desenvolvimento
-   ├── Argus — qualidade
-   ├── Nareth — estratégia
-   ├── Soren — documentação
-   ├── Solon — estudos
-   ├── Magnus — carreira
-   └── Elarion — narrativa
+├── Núcleo do Conhecimento
+├── Núcleo de Inteligência
+├── Núcleo do Sistema
+└── Núcleo dos Especialistas
 ```
 
-## 🗄️ Banco de dados local
+### Núcleo do Conhecimento — em desenvolvimento
 
-A versão `0.2.0` introduz persistência local com **SQLite**, usando apenas a biblioteca padrão do Python.
+Persistência local com SQLite para:
 
-A primeira entidade persistida é uma **memória catalogada**, composta por:
+- memórias;
+- arquivos e seus metadados;
+- projetos;
+- pessoas;
+- empresas;
+- itens de conhecimento;
+- relações entre registros.
 
-- título;
-- conteúdo;
-- categoria;
-- origem;
-- data de criação;
-- data de atualização.
+### Núcleo de Inteligência — planejado
 
-O banco é criado automaticamente em `data/eidon.db` e não é versionado no Git.
+Busca semântica, embeddings, classificação, recomendações e RAG.
 
-## 🧱 Arquitetura
+### Núcleo do Sistema
 
-A implementação segue princípios de **Código Limpo**, **Arquitetura Limpa** e **O Codificador Limpo**.
+CLI, banco local, futura API, dashboard, configurações e integrações.
+
+### Núcleo dos Especialistas
+
+Eidon, Asterion, Aion, Argus, Nareth, Soren, Solon, Magnus e Elarion.
+
+Mais detalhes em [Arquitetura](docs/arquitetura.md).
+
+## Estado atual
+
+### Versão 0.3.0 — Era II: Conhecimento
+
+- [x] SQLite local em `data/eidon.db`;
+- [x] memória textual catalogada;
+- [x] entidades de arquivos, projetos, pessoas, empresas e conhecimento;
+- [x] relacionamentos genéricos entre entidades;
+- [x] CLI para cadastro e consulta;
+- [x] testes de persistência;
+- [x] documentação viva e ADRs.
+
+## Estrutura de software
 
 ```text
 src/eidon_os/
 ├── domain/
-│   └── memory.py
+│   ├── memory.py
+│   └── knowledge.py
 ├── application/
 │   ├── ports.py
-│   └── use_cases.py
+│   ├── use_cases.py
+│   ├── knowledge_ports.py
+│   └── knowledge_use_cases.py
 ├── infrastructure/
-│   └── sqlite_repository.py
+│   ├── sqlite_repository.py
+│   └── sqlite_knowledge_repository.py
 └── cli.py
 ```
 
-- **Domínio:** regras e entidades independentes de tecnologia.
-- **Aplicação:** casos de uso e contratos de persistência.
-- **Infraestrutura:** implementação do repositório SQLite.
-- **Interface:** comandos de terminal para cadastrar e consultar memórias.
+O domínio não depende do SQLite nem da interface de terminal. A aplicação define contratos e casos de uso; a infraestrutura fornece persistência; a CLI é apenas uma porta de entrada.
 
-## 🚀 Como executar
+## Como executar
 
-Requisitos: Python 3.11 ou superior.
+Requisito: Python 3.11 ou superior.
 
 ```bash
 git clone https://github.com/JhonataFontoura/Eidon-OS.git
 cd Eidon-OS
-python -m venv .venv
+git checkout feat/knowledge-core
+py -m venv .venv
+.\.venv\Scripts\Activate.ps1
+py -m pip install -e .
 ```
 
-Ative o ambiente virtual e instale o projeto:
+### Memórias
 
 ```bash
-pip install -e .
-```
-
-Cadastrar uma memória:
-
-```bash
-eidon add \
-  --title "Decisão arquitetural" \
-  --content "Usar SQLite na primeira versão." \
-  --category "projetos" \
-  --source "Eidon OS"
-```
-
-Listar memórias:
-
-```bash
+eidon add --title "Primeira memória" --content "O Palácio foi iniciado." --category "Projetos" --source "Eidon OS"
 eidon list
 ```
 
-Executar os testes:
+### Projetos
 
 ```bash
-python -m unittest discover -s tests
+eidon project-add --name "Eidon OS" --description "Plataforma pessoal de conhecimento" --github-url "https://github.com/JhonataFontoura/Eidon-OS"
+eidon project-list
 ```
 
-## 🏛️ Estrutura geral
+### Arquivos
 
-```text
-Eidon-OS/
-├── README.md
-├── SYSTEM.md
-├── pyproject.toml
-├── src/
-├── tests/
-├── docs/
-├── config/
-├── agents/
-├── palace/
-├── templates/
-├── roadmap/
-├── memory/
-└── scripts/
+```bash
+eidon file-add --name "README.md" --path "README.md" --category "documentação"
+eidon file-list
 ```
 
-## 🎬 Frase de ativação
+### Pessoas, empresas e conhecimento
+
+```bash
+eidon person-add --name "Jhony Nunes" --role "Criador"
+eidon company-add --name "Stellantis" --website "https://www.stellantis.com"
+eidon knowledge-add --title "PKMS" --content "Sistema de gestão do conhecimento pessoal" --kind "conceito" --tags "conhecimento,organização"
+```
+
+### Relacionamentos
+
+Use os IDs mostrados pelos comandos de listagem:
+
+```bash
+eidon relation-add --source-type project --source-id "UUID_DO_PROJETO" --target-type file --target-id "UUID_DO_ARQUIVO" --relation-type contains
+```
+
+### Testes
+
+```bash
+py -m unittest discover -s tests
+```
+
+## Documentação
+
+- [Manifesto](docs/manifesto.md)
+- [Filosofia de engenharia](docs/filosofia.md)
+- [Arquitetura](docs/arquitetura.md)
+- [Eras](docs/eras.md)
+- [Roadmap](docs/roadmap.md)
+- [Conselho do Palácio](docs/CONSELHO.md)
+- [ADR-0001 — Evolução para PKMS](docs/adr/0001-evolucao-para-pkms.md)
+
+## As Eras
+
+1. **Fundação** — arquitetura, SQLite, CLI e memória.
+2. **Conhecimento** — arquivos, projetos, pessoas, empresas e relações.
+3. **Inteligência** — busca semântica, embeddings e RAG.
+4. **Autonomia** — especialistas, automações e agentes.
+5. **Ecossistema** — GitHub, Drive, Calendar, Gmail e outras integrações.
+
+Consulte o [Roadmap completo](docs/roadmap.md).
+
+## Princípios
+
+Código Limpo, Arquitetura Limpa, O Codificador Limpo, SOLID, KISS, DRY, YAGNI, documentação como código e evolução incremental.
+
+## Frase de ativação
 
 > **Está na hora do show.**
 
-Essa frase ativa o modo de desenvolvimento técnico orientado por boas práticas de engenharia de software.
+## Licença
 
-## 🛣️ Roadmap
-
-- [x] Definir o Palácio da Memória.
-- [x] Criar os Guardiões e o Conselho do Palácio.
-- [x] Documentar regras, comandos e memória estratégica.
-- [x] Implementar banco de dados local com SQLite.
-- [ ] Criar operações de atualização e remoção de memórias.
-- [ ] Adicionar busca por categoria e palavras-chave.
-- [ ] Criar API local.
-- [ ] Desenvolver interface web para o Palácio.
-- [ ] Integrar GitHub, Google Drive, Gmail e Google Calendar.
-- [ ] Evoluir para uma plataforma multiagente.
-
-## 📜 Licença
-
-Este projeto é distribuído sob a licença MIT.
+MIT.
