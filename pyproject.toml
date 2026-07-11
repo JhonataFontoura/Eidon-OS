@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "eidon-os"
+version = "0.2.0"
+description = "Sistema operacional pessoal baseado em IA para construir e preservar conhecimento."
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "Jhony Nunes" }]
+dependencies = []
+
+[project.scripts]
+eidon = "eidon_os.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
