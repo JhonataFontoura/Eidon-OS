@@ -4,12 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "eidon-os"
-version = "0.3.0"
-description = "Plataforma pessoal de gestão do conhecimento para construir e preservar contexto."
+version = "0.4.0"
+description = "Plataforma pessoal de gestão do conhecimento e inteligência de desenvolvimento."
 readme = "README.md"
 requires-python = ">=3.11"
 authors = [{ name = "Jhony Nunes" }]
-dependencies = []
+dependencies = ["openpyxl>=3.1"]
 
 [project.scripts]
 eidon = "eidon_os.cli:main"
