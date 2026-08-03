@@ -1,23 +1,8 @@
 # 🏛️ Eidon OS
 
-**Eidon OS** é uma Plataforma de Gestão do Conhecimento Pessoal baseada em inteligência artificial. O projeto combina características de **copiloto**, **agente** e **sistema operacional pessoal** para preservar contexto, organizar conhecimento e apoiar decisões.
+**Eidon OS** é uma Plataforma de Gestão do Conhecimento Pessoal baseada em inteligência artificial. O projeto combina características de copiloto, agente e sistema operacional pessoal para preservar contexto, organizar conhecimento, acompanhar evolução e apoiar decisões.
 
 > **Missão:** construir e preservar.
-
-## Por que existe
-
-Projetos evoluem, pessoas esquecem, conversas desaparecem e arquivos se espalham. O Eidon OS nasce para conectar memórias, arquivos, projetos, pessoas, empresas, conhecimento e decisões em um único ecossistema pessoal.
-
-Leia o [Manifesto](docs/manifesto.md).
-
-## Identidade
-
-O Eidon OS atua como:
-
-- **copiloto**, quando trabalha lado a lado com o usuário;
-- **agente**, quando executa fluxos definidos por regras e permissões;
-- **plataforma de orquestração**, quando coordena especialistas do Conselho do Palácio;
-- **PKMS**, quando transforma informações isoladas em conhecimento relacionado.
 
 ## Arquitetura em quatro núcleos
 
@@ -29,43 +14,23 @@ Eidon OS
 └── Núcleo dos Especialistas
 ```
 
-### Núcleo do Conhecimento — em desenvolvimento
-
-Persistência local com SQLite para:
-
-- memórias;
-- arquivos e seus metadados;
-- projetos;
-- pessoas;
-- empresas;
-- itens de conhecimento;
-- relações entre registros.
-
-### Núcleo de Inteligência — planejado
-
-Busca semântica, embeddings, classificação, recomendações e RAG.
-
-### Núcleo do Sistema
-
-CLI, banco local, futura API, dashboard, configurações e integrações.
-
-### Núcleo dos Especialistas
-
-Eidon, Asterion, Aion, Argus, Nareth, Soren, Solon, Magnus e Elarion.
-
-Mais detalhes em [Arquitetura](docs/arquitetura.md).
-
 ## Estado atual
 
-### Versão 0.3.0 — Era II: Conhecimento
+### Versão 0.4.0 — Personal Intelligence
+
+A versão 0.4.0 transforma o Eidon de um sistema que apenas armazena conhecimento em uma plataforma que também registra, mede e apresenta a evolução do usuário.
 
 - [x] SQLite local em `data/eidon.db`;
-- [x] memória textual catalogada;
-- [x] entidades de arquivos, projetos, pessoas, empresas e conhecimento;
+- [x] memórias, arquivos, projetos, pessoas, empresas e conhecimento;
 - [x] relacionamentos genéricos entre entidades;
-- [x] CLI para cadastro e consulta;
-- [x] testes de persistência;
-- [x] documentação viva e ADRs.
+- [x] nova entidade `Activity`;
+- [x] registro de duração, categoria, origem e data das atividades;
+- [x] timeline semanal;
+- [x] analytics pessoais;
+- [x] relatórios no terminal;
+- [x] dashboard exportável para Excel;
+- [x] testes de persistência de atividades;
+- [x] CLI atualizada.
 
 ## Estrutura de software
 
@@ -73,19 +38,25 @@ Mais detalhes em [Arquitetura](docs/arquitetura.md).
 src/eidon_os/
 ├── domain/
 │   ├── memory.py
-│   └── knowledge.py
+│   ├── knowledge.py
+│   └── activity.py
 ├── application/
 │   ├── ports.py
 │   ├── use_cases.py
 │   ├── knowledge_ports.py
-│   └── knowledge_use_cases.py
+│   ├── knowledge_use_cases.py
+│   ├── activity_ports.py
+│   ├── activity_use_cases.py
+│   └── personal_intelligence.py
 ├── infrastructure/
 │   ├── sqlite_repository.py
-│   └── sqlite_knowledge_repository.py
+│   ├── sqlite_knowledge_repository.py
+│   ├── sqlite_activity_repository.py
+│   └── excel_dashboard.py
 └── cli.py
 ```
 
-O domínio não depende do SQLite nem da interface de terminal. A aplicação define contratos e casos de uso; a infraestrutura fornece persistência; a CLI é apenas uma porta de entrada.
+O domínio não depende do SQLite, do Excel nem da interface de terminal. A aplicação define contratos, casos de uso e análises; a infraestrutura fornece persistência e exportação; a CLI é uma porta de entrada.
 
 ## Como executar
 
@@ -94,74 +65,91 @@ Requisito: Python 3.11 ou superior.
 ```bash
 git clone https://github.com/JhonataFontoura/Eidon-OS.git
 cd Eidon-OS
-git checkout feat/knowledge-core
+git checkout feat/personal-intelligence-v0.4.0
 py -m venv .venv
 .\.venv\Scripts\Activate.ps1
 py -m pip install -e .
 ```
 
-### Memórias
+## Comandos principais
+
+### Registrar uma atividade
 
 ```bash
-eidon add --title "Primeira memória" --content "O Palácio foi iniciado." --category "Projetos" --source "Eidon OS"
-eidon list
+eidon activity-add --title "Estudo de SQL" --category "Estudos" --duration-minutes 60
 ```
 
-### Projetos
+Também é possível relacionar a atividade a um projeto ou outra entidade:
 
 ```bash
-eidon project-add --name "Eidon OS" --description "Plataforma pessoal de conhecimento" --github-url "https://github.com/JhonataFontoura/Eidon-OS"
-eidon project-list
+eidon activity-add --title "Sprint do Eidon" --category "Projetos" --duration-minutes 90 --source-type project --source-id "UUID_DO_PROJETO"
 ```
 
-### Arquivos
+### Consultar atividades
 
 ```bash
-eidon file-add --name "README.md" --path "README.md" --category "documentação"
-eidon file-list
+eidon activity-list
 ```
 
-### Pessoas, empresas e conhecimento
+### Dashboard no terminal
 
 ```bash
-eidon person-add --name "Jhony Nunes" --role "Criador"
-eidon company-add --name "Stellantis" --website "https://www.stellantis.com"
-eidon knowledge-add --title "PKMS" --content "Sistema de gestão do conhecimento pessoal" --kind "conceito" --tags "conhecimento,organização"
+eidon dashboard
 ```
 
-### Relacionamentos
-
-Use os IDs mostrados pelos comandos de listagem:
+### Exportar dashboard para Excel
 
 ```bash
-eidon relation-add --source-type project --source-id "UUID_DO_PROJETO" --target-type file --target-id "UUID_DO_ARQUIVO" --relation-type contains
+eidon dashboard-export
 ```
 
-### Testes
+O arquivo será criado por padrão em:
+
+```text
+reports/eidon_dashboard.xlsx
+```
+
+Para escolher outro caminho:
+
+```bash
+eidon dashboard-export --output "meus-relatorios/desenvolvimento.xlsx"
+```
+
+## O que o dashboard apresenta
+
+- quantidade de projetos;
+- arquivos catalogados;
+- pessoas e empresas;
+- itens de conhecimento;
+- relacionamentos;
+- atividades registradas;
+- tempo total investido;
+- atividades por categoria;
+- timeline detalhada.
+
+## Testes
 
 ```bash
 py -m unittest discover -s tests
 ```
 
-## Documentação
-
-- [Manifesto](docs/manifesto.md)
-- [Filosofia de engenharia](docs/filosofia.md)
-- [Arquitetura](docs/arquitetura.md)
-- [Eras](docs/eras.md)
-- [Roadmap](docs/roadmap.md)
-- [Conselho do Palácio](docs/CONSELHO.md)
-- [ADR-0001 — Evolução para PKMS](docs/adr/0001-evolucao-para-pkms.md)
-
 ## As Eras
 
 1. **Fundação** — arquitetura, SQLite, CLI e memória.
 2. **Conhecimento** — arquivos, projetos, pessoas, empresas e relações.
-3. **Inteligência** — busca semântica, embeddings e RAG.
-4. **Autonomia** — especialistas, automações e agentes.
-5. **Ecossistema** — GitHub, Drive, Calendar, Gmail e outras integrações.
+3. **Personal Intelligence** — atividades, analytics, timeline, relatórios e dashboard.
+4. **Inteligência Semântica** — busca semântica, embeddings e RAG.
+5. **Autonomia** — especialistas, automações e agentes.
+6. **Ecossistema** — GitHub, Drive, Calendar, Gmail e outras integrações.
 
-Consulte o [Roadmap completo](docs/roadmap.md).
+## Próximos passos
+
+- registrar atividades automaticamente a partir de casos de uso;
+- criar relatórios semanais e mensais em Markdown;
+- ampliar o dashboard com metas e indicadores de carreira;
+- adicionar filtros por período e categoria;
+- preparar o Núcleo de Inteligência Semântica;
+- implementar embeddings, busca semântica e RAG.
 
 ## Princípios
 
