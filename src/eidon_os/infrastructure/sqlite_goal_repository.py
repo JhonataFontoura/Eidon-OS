@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-import sqlite3
 from datetime import datetime
 from pathlib import Path
 from uuid import UUID
 
 from eidon_os.domain.goal import Goal
+from eidon_os.infrastructure.sqlite_connection import sqlite_connection
 
 
 class SQLiteGoalRepository:
@@ -14,13 +14,11 @@ class SQLiteGoalRepository:
         self._database_path.parent.mkdir(parents=True, exist_ok=True)
         self._initialize_schema()
 
-    def _connect(self) -> sqlite3.Connection:
-        connection = sqlite3.connect(self._database_path)
-        connection.row_factory = sqlite3.Row
-        return connection
+    def _connection(self):
+        return sqlite_connection(self._database_path)
 
     def _initialize_schema(self) -> None:
-        with self._connect() as connection:
+        with self._connection() as connection:
             connection.execute("""CREATE TABLE IF NOT EXISTS goals (
                 id TEXT PRIMARY KEY,
                 area TEXT NOT NULL,
@@ -35,13 +33,24 @@ class SQLiteGoalRepository:
             connection.execute("CREATE INDEX IF NOT EXISTS idx_goals_active ON goals(active)")
 
     def save(self, goal: Goal) -> None:
-        with self._connect() as connection:
+        with self._connection() as connection:
             connection.execute(
                 "INSERT OR REPLACE INTO goals VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                (str(goal.id), goal.area, goal.indicator, goal.target, goal.unit, goal.period, int(goal.active), goal.created_at.isoformat()),
+                (
+                    str(goal.id), goal.area, goal.indicator, goal.target,
+                    goal.unit, goal.period, int(goal.active), goal.created_at.isoformat(),
+                ),
             )
 
     def list_active(self) -> list[Goal]:
-        with self._connect() as connection:
-            rows = connection.execute("SELECT * FROM goals WHERE active = 1 ORDER BY area, indicator").fetchall()
-        return [Goal(UUID(r["id"]), r["area"], r["indicator"], r["target"], r["unit"], r["period"], bool(r["active"]), datetime.fromisoformat(r["created_at"])) for r in rows]
+        with self._connection() as connection:
+            rows = connection.execute(
+                "SELECT * FROM goals WHERE active = 1 ORDER BY area, indicator"
+            ).fetchall()
+        return [
+            Goal(
+                UUID(r["id"]), r["area"], r["indicator"], r["target"], r["unit"],
+                r["period"], bool(r["active"]), datetime.fromisoformat(r["created_at"]),
+            )
+            for r in rows
+        ]

@@ -6,6 +6,7 @@ from pathlib import Path
 from uuid import UUID
 
 from eidon_os.domain.knowledge import Company, FileRecord, KnowledgeItem, Person, Project, Relationship
+from eidon_os.infrastructure.sqlite_connection import sqlite_connection
 
 
 class SQLiteKnowledgeRepository:
@@ -14,11 +15,8 @@ class SQLiteKnowledgeRepository:
         self._database_path.parent.mkdir(parents=True, exist_ok=True)
         self._initialize_schema()
 
-    def _connect(self) -> sqlite3.Connection:
-        connection = sqlite3.connect(self._database_path)
-        connection.row_factory = sqlite3.Row
-        connection.execute("PRAGMA foreign_keys = ON")
-        return connection
+    def _connection(self):
+        return sqlite_connection(self._database_path, foreign_keys=True)
 
     def _initialize_schema(self) -> None:
         statements = [
@@ -54,16 +52,16 @@ class SQLiteKnowledgeRepository:
             "CREATE INDEX IF NOT EXISTS idx_relationship_source ON relationships(source_type, source_id)",
             "CREATE INDEX IF NOT EXISTS idx_relationship_target ON relationships(target_type, target_id)",
         ]
-        with self._connect() as connection:
+        with self._connection() as connection:
             for statement in statements:
                 connection.execute(statement)
 
     def _execute(self, statement: str, values: tuple[object, ...]) -> None:
-        with self._connect() as connection:
+        with self._connection() as connection:
             connection.execute(statement, values)
 
     def _rows(self, query: str) -> list[sqlite3.Row]:
-        with self._connect() as connection:
+        with self._connection() as connection:
             return connection.execute(query).fetchall()
 
     def save_project(self, project: Project) -> None:
