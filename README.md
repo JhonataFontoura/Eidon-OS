@@ -1,171 +1,72 @@
 # 🏛️ Eidon OS
 
-**Eidon OS** é uma Plataforma de Gestão do Conhecimento Pessoal baseada em inteligência artificial. O projeto combina características de **copiloto**, **agente** e **sistema operacional pessoal** para preservar contexto, organizar conhecimento e apoiar decisões.
+**Eidon OS** é uma plataforma pessoal de conhecimento e evolução. O núcleo pertence ao próprio Eidon: memória, projetos, atividades, metas, analytics e dados permanecem independentes de qualquer provedor de inteligência artificial.
 
-> **Missão:** construir e preservar.
+> **Missão:** construir, preservar e transformar contexto em decisões.
 
-## Por que existe
+## Estado atual — v0.4.0 Personal Intelligence Core
 
-Projetos evoluem, pessoas esquecem, conversas desaparecem e arquivos se espalham. O Eidon OS nasce para conectar memórias, arquivos, projetos, pessoas, empresas, conhecimento e decisões em um único ecossistema pessoal.
-
-Leia o [Manifesto](docs/manifesto.md).
-
-## Identidade
-
-O Eidon OS atua como:
-
-- **copiloto**, quando trabalha lado a lado com o usuário;
-- **agente**, quando executa fluxos definidos por regras e permissões;
-- **plataforma de orquestração**, quando coordena especialistas do Conselho do Palácio;
-- **PKMS**, quando transforma informações isoladas em conhecimento relacionado.
-
-## Arquitetura em quatro núcleos
-
-```text
-Eidon OS
-├── Núcleo do Conhecimento
-├── Núcleo de Inteligência
-├── Núcleo do Sistema
-└── Núcleo dos Especialistas
-```
-
-### Núcleo do Conhecimento — em desenvolvimento
-
-Persistência local com SQLite para:
-
-- memórias;
-- arquivos e seus metadados;
-- projetos;
-- pessoas;
-- empresas;
-- itens de conhecimento;
-- relações entre registros.
-
-### Núcleo de Inteligência — planejado
-
-Busca semântica, embeddings, classificação, recomendações e RAG.
-
-### Núcleo do Sistema
-
-CLI, banco local, futura API, dashboard, configurações e integrações.
-
-### Núcleo dos Especialistas
-
-Eidon, Asterion, Aion, Argus, Nareth, Soren, Solon, Magnus e Elarion.
-
-Mais detalhes em [Arquitetura](docs/arquitetura.md).
-
-## Estado atual
-
-### Versão 0.3.0 — Era II: Conhecimento
+A v0.4.0 fecha a fase em que o Eidon deixa de apenas armazenar informação e passa a registrar e medir evolução.
 
 - [x] SQLite local em `data/eidon.db`;
-- [x] memória textual catalogada;
-- [x] entidades de arquivos, projetos, pessoas, empresas e conhecimento;
-- [x] relacionamentos genéricos entre entidades;
-- [x] CLI para cadastro e consulta;
-- [x] testes de persistência;
-- [x] documentação viva e ADRs.
+- [x] memórias, arquivos, projetos, pessoas, empresas e conhecimento;
+- [x] relacionamentos genéricos;
+- [x] Activities com duração, categoria, origem e data;
+- [x] registro automático de Activities em cadastros do núcleo;
+- [x] analytics com filtros por período e categoria;
+- [x] timeline semanal e mensal;
+- [x] relatórios Markdown semanais e mensais;
+- [x] metas persistentes no SQLite;
+- [x] dashboard no terminal;
+- [x] Excel por áreas + Base Geral + Metas;
+- [x] documentação e runbooks;
+- [x] testes de persistência de Activities e Metas.
 
-## Estrutura de software
+## Comandos principais
 
-```text
-src/eidon_os/
-├── domain/
-│   ├── memory.py
-│   └── knowledge.py
-├── application/
-│   ├── ports.py
-│   ├── use_cases.py
-│   ├── knowledge_ports.py
-│   └── knowledge_use_cases.py
-├── infrastructure/
-│   ├── sqlite_repository.py
-│   └── sqlite_knowledge_repository.py
-└── cli.py
+```bash
+eidon activity-add --title "Estudo de SQL" --category "Estudos" --duration-minutes 60
+eidon goal-add --area "Academia de Código" --indicator "Desafios concluídos" --target 40 --unit desafios
+eidon goal-list
+eidon dashboard
+eidon dashboard --category Estudos --start 2026-08-01T00:00:00+00:00
+eidon dashboard-export
+eidon report weekly
+eidon report monthly
 ```
 
-O domínio não depende do SQLite nem da interface de terminal. A aplicação define contratos e casos de uso; a infraestrutura fornece persistência; a CLI é apenas uma porta de entrada.
+## Papel do Excel
+
+O Excel é uma camada de exportação e análise, não a interface principal do produto. O arquivo contém Dashboard Geral, Metas, Estudos, Projetos, Academia de Código, Carreira, Base Geral, configurações e instruções.
+
+## Roadmap revisado
+
+1. **v0.4.0 — Personal Intelligence Core** — núcleo local, Activities, Metas, analytics, relatórios e exportações.
+2. **v0.5.0 — Eidon Web** — aplicação web própria e visualização central do sistema.
+3. **v0.6.0 — AI Gateway** — provedores de IA intercambiáveis e permissões de acesso.
+4. **v0.7.0 — Semantic Memory / RAG** — embeddings, busca semântica e recuperação de contexto.
+5. **v0.8.0 — Agents & Automation** — especialistas e automações controladas.
+6. **v1.0.0 — Eidon OS** — plataforma pessoal estável e integrada.
+
+## Princípio arquitetural para a próxima fase
+
+> **A IA acessa o Eidon; o Eidon não pertence à IA.**
+
+O Eidon Web será a interface principal. OpenAI, Anthropic, Google ou modelos locais poderão ser conectados posteriormente por um AI Gateway, sem mover a memória ou o domínio para o provedor.
 
 ## Como executar
 
-Requisito: Python 3.11 ou superior.
+Requisito: Python 3.11+.
 
 ```bash
 git clone https://github.com/JhonataFontoura/Eidon-OS.git
 cd Eidon-OS
-git checkout feat/knowledge-core
+git checkout feat/personal-intelligence-v0.4.0
 py -m venv .venv
 .\.venv\Scripts\Activate.ps1
 py -m pip install -e .
-```
-
-### Memórias
-
-```bash
-eidon add --title "Primeira memória" --content "O Palácio foi iniciado." --category "Projetos" --source "Eidon OS"
-eidon list
-```
-
-### Projetos
-
-```bash
-eidon project-add --name "Eidon OS" --description "Plataforma pessoal de conhecimento" --github-url "https://github.com/JhonataFontoura/Eidon-OS"
-eidon project-list
-```
-
-### Arquivos
-
-```bash
-eidon file-add --name "README.md" --path "README.md" --category "documentação"
-eidon file-list
-```
-
-### Pessoas, empresas e conhecimento
-
-```bash
-eidon person-add --name "Jhony Nunes" --role "Criador"
-eidon company-add --name "Stellantis" --website "https://www.stellantis.com"
-eidon knowledge-add --title "PKMS" --content "Sistema de gestão do conhecimento pessoal" --kind "conceito" --tags "conhecimento,organização"
-```
-
-### Relacionamentos
-
-Use os IDs mostrados pelos comandos de listagem:
-
-```bash
-eidon relation-add --source-type project --source-id "UUID_DO_PROJETO" --target-type file --target-id "UUID_DO_ARQUIVO" --relation-type contains
-```
-
-### Testes
-
-```bash
 py -m unittest discover -s tests
 ```
-
-## Documentação
-
-- [Manifesto](docs/manifesto.md)
-- [Filosofia de engenharia](docs/filosofia.md)
-- [Arquitetura](docs/arquitetura.md)
-- [Eras](docs/eras.md)
-- [Roadmap](docs/roadmap.md)
-- [Conselho do Palácio](docs/CONSELHO.md)
-- [ADR-0001 — Evolução para PKMS](docs/adr/0001-evolucao-para-pkms.md)
-
-## As Eras
-
-1. **Fundação** — arquitetura, SQLite, CLI e memória.
-2. **Conhecimento** — arquivos, projetos, pessoas, empresas e relações.
-3. **Inteligência** — busca semântica, embeddings e RAG.
-4. **Autonomia** — especialistas, automações e agentes.
-5. **Ecossistema** — GitHub, Drive, Calendar, Gmail e outras integrações.
-
-Consulte o [Roadmap completo](docs/roadmap.md).
-
-## Princípios
-
-Código Limpo, Arquitetura Limpa, O Codificador Limpo, SOLID, KISS, DRY, YAGNI, documentação como código e evolução incremental.
 
 ## Frase de ativação
 
