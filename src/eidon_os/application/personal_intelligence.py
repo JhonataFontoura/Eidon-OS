@@ -26,8 +26,15 @@ class PersonalAnalytics:
         self._knowledge = knowledge
         self._activities = activities
 
-    def snapshot(self) -> PersonalSnapshot:
+    def snapshot(self, *, start: datetime | None = None, end: datetime | None = None, category: str | None = None) -> PersonalSnapshot:
         activity_list = self._activities.list_all()
+        if start is not None:
+            activity_list = [item for item in activity_list if item.occurred_at >= start]
+        if end is not None:
+            activity_list = [item for item in activity_list if item.occurred_at <= end]
+        if category:
+            expected = category.casefold()
+            activity_list = [item for item in activity_list if item.category.casefold() == expected]
         return PersonalSnapshot(
             projects=len(self._knowledge.list_projects()),
             files=len(self._knowledge.list_files()),
@@ -43,6 +50,11 @@ class PersonalAnalytics:
     def weekly_timeline(self, now: datetime | None = None) -> list[object]:
         end = now or datetime.now(timezone.utc)
         return self._activities.list_between(end - timedelta(days=7), end)
+
+    def monthly_timeline(self, now: datetime | None = None) -> list[object]:
+        end = now or datetime.now(timezone.utc)
+        start = end.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        return self._activities.list_between(start, end)
 
 
 class ReportService:
@@ -62,8 +74,24 @@ class ReportService:
             f"Recorded time: {hours}h {minutes}min",
         ]
         if snapshot.activity_categories:
-            lines.append("")
-            lines.append("Activities by category:")
+            lines.extend(["", "Activities by category:"])
             for category, count in sorted(snapshot.activity_categories.items()):
                 lines.append(f"- {category}: {count}")
         return "\n".join(lines)
+
+    @staticmethod
+    def render_markdown(title: str, snapshot: PersonalSnapshot, activities: list[object]) -> str:
+        hours, minutes = divmod(snapshot.total_minutes, 60)
+        lines = [f"# {title}", "", f"- Atividades: **{snapshot.activities}**", f"- Tempo registrado: **{hours}h {minutes}min**", ""]
+        if snapshot.activity_categories:
+            lines.append("## Categorias")
+            for category, count in sorted(snapshot.activity_categories.items()):
+                lines.append(f"- {category}: {count}")
+            lines.append("")
+        lines.append("## Timeline")
+        if not activities:
+            lines.append("Nenhuma atividade registrada no período.")
+        else:
+            for item in activities:
+                lines.append(f"- {item.occurred_at.date().isoformat()} — {item.title} ({item.category}, {item.duration_minutes} min)")
+        return "\n".join(lines) + "\n"
