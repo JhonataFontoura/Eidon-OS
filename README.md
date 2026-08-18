@@ -4,69 +4,108 @@
 
 > **Missão:** construir, preservar e transformar contexto em decisões.
 
-## Estado atual — v0.4.0 Personal Intelligence Core
+## Estado atual — v0.5.0 Eidon Web
 
-A v0.4.0 fecha a fase em que o Eidon deixa de apenas armazenar informação e passa a registrar e medir evolução.
+A v0.5.0 inicia a transição do Eidon de uma aplicação centrada em CLI para uma plataforma com interface web própria, sem acoplar o domínio a um framework ou a um provedor de IA.
 
-- [x] SQLite local em `data/eidon.db`;
-- [x] memórias, arquivos, projetos, pessoas, empresas e conhecimento;
-- [x] relacionamentos genéricos;
-- [x] Activities com duração, categoria, origem e data;
-- [x] registro automático de Activities em cadastros do núcleo;
-- [x] analytics com filtros por período e categoria;
-- [x] timeline semanal e mensal;
-- [x] relatórios Markdown semanais e mensais;
-- [x] metas persistentes no SQLite;
-- [x] dashboard no terminal;
-- [x] Excel por áreas + Base Geral + Metas;
-- [x] documentação e runbooks;
-- [x] testes de persistência de Activities e Metas.
+### Entregas desta fase
 
-## Comandos principais
+- [x] preservação do Personal Intelligence Core da v0.4.0;
+- [x] versão do pacote atualizada para `0.5.0`;
+- [x] aplicação web com FastAPI;
+- [x] comando `eidon-web` para iniciar a interface;
+- [x] dashboard visual responsivo;
+- [x] visão consolidada de projetos, conhecimentos, atividades e horas registradas;
+- [x] listagem de atividades recentes;
+- [x] listagem de metas ativas;
+- [x] API local para dashboard, atividades e metas;
+- [x] endpoint de health check;
+- [x] testes da fundação web.
 
-```bash
-eidon activity-add --title "Estudo de SQL" --category "Estudos" --duration-minutes 60
-eidon goal-add --area "Academia de Código" --indicator "Desafios concluídos" --target 40 --unit desafios
-eidon goal-list
-eidon dashboard
-eidon dashboard --category Estudos --start 2026-08-01T00:00:00+00:00
-eidon dashboard-export
-eidon report weekly
-eidon report monthly
+## Arquitetura
+
+```text
+Eidon OS
+├── Domain
+├── Application
+├── Infrastructure
+│   ├── SQLite
+│   └── Excel
+├── CLI
+└── Web                ← v0.5.0
+    ├── FastAPI
+    ├── Dashboard
+    └── API local
 ```
 
-## Papel do Excel
+A camada `web` consome os casos de uso e repositórios existentes. O domínio continua independente da interface web.
 
-O Excel é uma camada de exportação e análise, não a interface principal do produto. O arquivo contém Dashboard Geral, Metas, Estudos, Projetos, Academia de Código, Carreira, Base Geral, configurações e instruções.
+## Executar a v0.5.0
 
-## Roadmap revisado
+Requisito: Python 3.11+.
 
-1. **v0.4.0 — Personal Intelligence Core** — núcleo local, Activities, Metas, analytics, relatórios e exportações.
-2. **v0.5.0 — Eidon Web** — aplicação web própria e visualização central do sistema.
+```powershell
+git clone https://github.com/JhonataFontoura/Eidon-OS.git
+cd Eidon-OS
+git switch v0.5.0
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -e .
+python -m unittest discover -s tests -v
+eidon-web
+```
+
+Depois acesse no navegador:
+
+```text
+http://127.0.0.1:8000
+```
+
+Documentação automática da API:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+## Endpoints iniciais
+
+```text
+GET /                Dashboard web
+GET /health          Estado do serviço
+GET /api/dashboard   Métricas consolidadas
+GET /api/activities  Atividades recentes
+GET /api/goals       Metas ativas
+```
+
+## CLI e exportações
+
+A interface web não substitui o núcleo nem remove os recursos existentes. A CLI e as exportações continuam disponíveis:
+
+```powershell
+eidon dashboard
+eidon activity-list
+eidon goal-list
+eidon report weekly
+eidon report monthly
+eidon dashboard-export
+```
+
+O Excel permanece como camada de exportação e análise. O Eidon Web passa a ser a principal direção de interface do projeto.
+
+## Roadmap
+
+1. **v0.4.0 — Personal Intelligence Core** — Activities, metas, analytics, relatórios e exportações.
+2. **v0.5.0 — Eidon Web** — interface web própria e visualização central do sistema.
 3. **v0.6.0 — AI Gateway** — provedores de IA intercambiáveis e permissões de acesso.
 4. **v0.7.0 — Semantic Memory / RAG** — embeddings, busca semântica e recuperação de contexto.
 5. **v0.8.0 — Agents & Automation** — especialistas e automações controladas.
 6. **v1.0.0 — Eidon OS** — plataforma pessoal estável e integrada.
 
-## Princípio arquitetural para a próxima fase
+## Princípio arquitetural
 
 > **A IA acessa o Eidon; o Eidon não pertence à IA.**
 
-O Eidon Web será a interface principal. OpenAI, Anthropic, Google ou modelos locais poderão ser conectados posteriormente por um AI Gateway, sem mover a memória ou o domínio para o provedor.
-
-## Como executar
-
-Requisito: Python 3.11+.
-
-```bash
-git clone https://github.com/JhonataFontoura/Eidon-OS.git
-cd Eidon-OS
-git checkout feat/personal-intelligence-v0.4.0
-py -m venv .venv
-.\.venv\Scripts\Activate.ps1
-py -m pip install -e .
-py -m unittest discover -s tests
-```
+OpenAI, Anthropic, Google ou modelos locais poderão ser conectados posteriormente por um AI Gateway, sem mover a memória ou o domínio para o provedor.
 
 ## Frase de ativação
 
