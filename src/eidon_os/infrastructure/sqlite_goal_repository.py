@@ -54,3 +54,8 @@ class SQLiteGoalRepository:
             )
             for r in rows
         ]
+
+    def delete(self, goal_id: UUID) -> bool:
+        with self._connection() as connection:
+            cursor = connection.execute("DELETE FROM goals WHERE id = ?", (str(goal_id),))
+            return cursor.rowcount > 0

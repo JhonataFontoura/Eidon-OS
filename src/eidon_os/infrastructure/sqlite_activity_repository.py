@@ -33,12 +33,8 @@ class SQLiteActivityRepository:
                     created_at TEXT NOT NULL
                 )"""
             )
-            connection.execute(
-                "CREATE INDEX IF NOT EXISTS idx_activities_occurred_at ON activities(occurred_at)"
-            )
-            connection.execute(
-                "CREATE INDEX IF NOT EXISTS idx_activities_category ON activities(category)"
-            )
+            connection.execute("CREATE INDEX IF NOT EXISTS idx_activities_occurred_at ON activities(occurred_at)")
+            connection.execute("CREATE INDEX IF NOT EXISTS idx_activities_category ON activities(category)")
 
     def save(self, activity: Activity) -> None:
         with self._connection() as connection:
@@ -54,9 +50,7 @@ class SQLiteActivityRepository:
 
     def list_all(self) -> list[Activity]:
         with self._connection() as connection:
-            rows = connection.execute(
-                "SELECT * FROM activities ORDER BY occurred_at DESC"
-            ).fetchall()
+            rows = connection.execute("SELECT * FROM activities ORDER BY occurred_at DESC").fetchall()
         return [self._to_entity(row) for row in rows]
 
     def list_between(self, start: datetime, end: datetime) -> list[Activity]:
@@ -66,6 +60,11 @@ class SQLiteActivityRepository:
                 (start.isoformat(), end.isoformat()),
             ).fetchall()
         return [self._to_entity(row) for row in rows]
+
+    def delete(self, activity_id: UUID) -> bool:
+        with self._connection() as connection:
+            cursor = connection.execute("DELETE FROM activities WHERE id = ?", (str(activity_id),))
+            return cursor.rowcount > 0
 
     @staticmethod
     def _to_entity(row: sqlite3.Row) -> Activity:

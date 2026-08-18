@@ -8,19 +8,31 @@
 - dashboard web responsivo;
 - API local para métricas, atividades e metas;
 - endpoint `/health`;
-- testes da fundação web.
+- AI Gateway desacoplado do domínio;
+- integração inicial com OpenAI / ChatGPT via OpenAI API;
+- painel visual para configurar provedor, modelo e chave de API;
+- chat visual integrado ao Eidon Web;
+- ferramentas de IA para leitura de dashboard, atividades, metas, projetos e conhecimento;
+- ferramentas de IA para criação de atividades, metas, projetos e conhecimento;
+- exclusões controladas com autorização visual por mensagem;
+- testes da camada de ferramentas da IA.
 
 ### Alterado
-- versão do pacote atualizada para `0.5.0`;
-- interface web passa a ser a direção principal de visualização do projeto;
-- CLI e Excel permanecem como interfaces complementares;
-- README atualizado com execução e arquitetura da v0.5.0.
+- a v0.5.0 passa a incluir a fundação de integração com IA antes do refinamento visual;
+- o roadmap reserva a v0.5.1 para identidade visual, navegação e experiência web;
+- dependência oficial `openai` adicionada ao projeto;
+- README atualizado com arquitetura e configuração da IA.
+
+### Segurança
+- a IA não recebe conexão SQL bruta;
+- a chave informada pela interface não é persistida no banco e nunca é devolvida pela API;
+- exclusões permanecem bloqueadas até autorização explícita na interface.
 
 ### Mantido
 - Personal Intelligence Core da v0.4.0;
 - persistência SQLite local;
 - Activities, Goals, analytics, relatórios e exportações;
-- independência entre o domínio e provedores de IA.
+- princípio: "A IA acessa o Eidon; o Eidon não pertence à IA."
 
 ## [0.4.0] — Personal Intelligence Core
 

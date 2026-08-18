@@ -1,111 +1,110 @@
 # 🏛️ Eidon OS
 
-**Eidon OS** é uma plataforma pessoal de conhecimento e evolução. O núcleo pertence ao próprio Eidon: memória, projetos, atividades, metas, analytics e dados permanecem independentes de qualquer provedor de inteligência artificial.
+**Eidon OS** é uma plataforma pessoal de conhecimento e evolução. O núcleo pertence ao próprio Eidon: memória, projetos, atividades, metas, analytics e dados permanecem independentes do provedor de inteligência artificial.
 
 > **Missão:** construir, preservar e transformar contexto em decisões.
 
-## Estado atual — v0.5.0 Eidon Web
+## Estado atual — v0.5.0 Eidon Web + AI Integration Foundation
 
-A v0.5.0 inicia a transição do Eidon de uma aplicação centrada em CLI para uma plataforma com interface web própria, sem acoplar o domínio a um framework ou a um provedor de IA.
+A v0.5.0 mantém o Personal Intelligence Core e adiciona uma interface web própria. Nesta atualização, o Eidon passa a ter também uma camada de inteligência integrada ao núcleo local.
 
-### Entregas desta fase
+### Entregas atuais
 
-- [x] preservação do Personal Intelligence Core da v0.4.0;
-- [x] versão do pacote atualizada para `0.5.0`;
-- [x] aplicação web com FastAPI;
-- [x] comando `eidon-web` para iniciar a interface;
-- [x] dashboard visual responsivo;
-- [x] visão consolidada de projetos, conhecimentos, atividades e horas registradas;
-- [x] listagem de atividades recentes;
-- [x] listagem de metas ativas;
-- [x] API local para dashboard, atividades e metas;
-- [x] endpoint de health check;
-- [x] testes da fundação web.
+- [x] FastAPI + comando `eidon-web`;
+- [x] dashboard web com projetos, conhecimento, atividades e metas;
+- [x] AI Gateway desacoplado do domínio;
+- [x] primeiro provedor: OpenAI / ChatGPT via OpenAI API;
+- [x] configuração visual de provedor, modelo e chave de API;
+- [x] chat visual dentro do Eidon Web;
+- [x] ferramentas de leitura para dashboard, atividades, metas, projetos e conhecimento;
+- [x] ferramentas de escrita para atividades, metas, projetos e conhecimento;
+- [x] remoção controlada de registros com autorização visual por mensagem;
+- [x] chave de API nunca retornada pela API do Eidon e mantida somente em memória quando inserida pela interface;
+- [x] testes locais da camada de ferramentas da IA.
 
 ## Arquitetura
 
 ```text
-Eidon OS
-├── Domain
-├── Application
-├── Infrastructure
-│   ├── SQLite
-│   └── Excel
-├── CLI
-└── Web                ← v0.5.0
-    ├── FastAPI
-    ├── Dashboard
-    └── API local
+Usuário
+  ↓
+Eidon Web
+  ├── Dashboard
+  └── Eidon IA
+        ↓
+     AI Gateway
+        ↓
+ OpenAI / futuros provedores
+        ↓
+   Eidon Tools
+        ↓
+ Application / Repositories
+        ↓
+      SQLite
 ```
 
-A camada `web` consome os casos de uso e repositórios existentes. O domínio continua independente da interface web.
+A IA não recebe acesso SQL bruto. Ela opera por ferramentas controladas que respeitam o núcleo do Eidon.
 
-## Executar a v0.5.0
+> **A IA acessa o Eidon; o Eidon não pertence à IA.**
 
-Requisito: Python 3.11+.
+## Configurar OpenAI / ChatGPT
+
+Instale a versão atual da branch:
 
 ```powershell
-git clone https://github.com/JhonataFontoura/Eidon-OS.git
-cd Eidon-OS
 git switch v0.5.0
-python -m venv .venv
+git pull
 .\.venv\Scripts\Activate.ps1
 python -m pip install -e .
-python -m unittest discover -s tests -v
 eidon-web
 ```
 
-Depois acesse no navegador:
+Acesse:
 
 ```text
 http://127.0.0.1:8000
 ```
 
-Documentação automática da API:
+Na seção **Eidon IA**, escolha `OpenAI / ChatGPT`, informe o modelo e a chave da API. A chave digitada na interface existe somente durante o processo atual.
 
-```text
-http://127.0.0.1:8000/docs
-```
-
-## Endpoints iniciais
-
-```text
-GET /                Dashboard web
-GET /health          Estado do serviço
-GET /api/dashboard   Métricas consolidadas
-GET /api/activities  Atividades recentes
-GET /api/goals       Metas ativas
-```
-
-## CLI e exportações
-
-A interface web não substitui o núcleo nem remove os recursos existentes. A CLI e as exportações continuam disponíveis:
+Para configuração persistente e segura, prefira uma variável de ambiente:
 
 ```powershell
-eidon dashboard
-eidon activity-list
-eidon goal-list
-eidon report weekly
-eidon report monthly
-eidon dashboard-export
+$env:OPENAI_API_KEY="sua-chave"
+$env:EIDON_AI_MODEL="gpt-5"
+eidon-web
 ```
 
-O Excel permanece como camada de exportação e análise. O Eidon Web passa a ser a principal direção de interface do projeto.
+Nunca envie a chave da API para o GitHub.
 
-## Roadmap
+## Endpoints
 
-1. **v0.4.0 — Personal Intelligence Core** — Activities, metas, analytics, relatórios e exportações.
-2. **v0.5.0 — Eidon Web** — interface web própria e visualização central do sistema.
-3. **v0.6.0 — AI Gateway** — provedores de IA intercambiáveis e permissões de acesso.
-4. **v0.7.0 — Semantic Memory / RAG** — embeddings, busca semântica e recuperação de contexto.
-5. **v0.8.0 — Agents & Automation** — especialistas e automações controladas.
-6. **v1.0.0 — Eidon OS** — plataforma pessoal estável e integrada.
+```text
+GET  /health
+GET  /api/dashboard
+GET  /api/activities
+GET  /api/goals
+GET  /api/ai/status
+POST /api/ai/config
+POST /api/ai/chat
+```
 
-## Princípio arquitetural
+## Segurança operacional
 
-> **A IA acessa o Eidon; o Eidon não pertence à IA.**
+A IA pode ler e registrar informações no Eidon. Exclusões são bloqueadas por padrão e somente ficam disponíveis quando a opção **Autorizar exclusões nesta mensagem** é marcada na interface.
 
-OpenAI, Anthropic, Google ou modelos locais poderão ser conectados posteriormente por um AI Gateway, sem mover a memória ou o domínio para o provedor.
+## Próximas versões
+
+1. **v0.5.1 — Eidon Web Experience** — identidade visual profissional, arquitetura da informação, navegação, dashboard refinado, estados de interface e visualizações úteis.
+2. **v0.6.0 — Intelligence Expansion** — novos provedores, permissões mais granulares, histórico/auditoria e evolução do AI Gateway.
+3. **v0.7.0 — Semantic Memory / RAG** — embeddings, busca semântica e recuperação de contexto.
+4. **v0.8.0 — Agents & Automation** — especialistas e automações controladas.
+5. **v1.0.0 — Eidon OS** — plataforma pessoal estável e integrada.
+
+## Testes
+
+```powershell
+python -m unittest discover -s tests -v
+```
 
 ## Frase de ativação
 

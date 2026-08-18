@@ -60,6 +60,14 @@ class SQLiteKnowledgeRepository:
         with self._connection() as connection:
             connection.execute(statement, values)
 
+    def _delete(self, table: str, record_id: UUID) -> bool:
+        allowed = {"projects", "knowledge_items"}
+        if table not in allowed:
+            raise ValueError("unsupported delete table")
+        with self._connection() as connection:
+            cursor = connection.execute(f"DELETE FROM {table} WHERE id = ?", (str(record_id),))
+            return cursor.rowcount > 0
+
     def _rows(self, query: str) -> list[sqlite3.Row]:
         with self._connection() as connection:
             return connection.execute(query).fetchall()
@@ -69,6 +77,9 @@ class SQLiteKnowledgeRepository:
 
     def list_projects(self) -> list[Project]:
         return [Project(UUID(r["id"]), r["name"], r["description"], r["status"], r["github_url"], datetime.fromisoformat(r["created_at"]), datetime.fromisoformat(r["updated_at"])) for r in self._rows("SELECT * FROM projects ORDER BY created_at DESC")]
+
+    def delete_project(self, project_id: UUID) -> bool:
+        return self._delete("projects", project_id)
 
     def save_file(self, item: FileRecord) -> None:
         self._execute("INSERT OR REPLACE INTO files VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (str(item.id), item.name, item.path, item.media_type, item.category, item.sha256, item.size_bytes, item.summary, item.source, item.created_at.isoformat(), item.updated_at.isoformat()))
@@ -93,6 +104,9 @@ class SQLiteKnowledgeRepository:
 
     def list_knowledge(self) -> list[KnowledgeItem]:
         return [KnowledgeItem(UUID(r["id"]), r["title"], r["content"], r["kind"], r["source"], r["tags"], datetime.fromisoformat(r["created_at"]), datetime.fromisoformat(r["updated_at"])) for r in self._rows("SELECT * FROM knowledge_items ORDER BY created_at DESC")]
+
+    def delete_knowledge(self, knowledge_id: UUID) -> bool:
+        return self._delete("knowledge_items", knowledge_id)
 
     def save_relationship(self, item: Relationship) -> None:
         self._execute("INSERT OR REPLACE INTO relationships VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (str(item.id), item.source_type, str(item.source_id), item.target_type, str(item.target_id), item.relation_type, item.notes, item.created_at.isoformat()))
